@@ -1,0 +1,45 @@
+<div class="card flex flex-row">
+    <div class="">
+      <div *ngFor="let question of questionData" class="card flex">
+        <p-card  header="{{question.question}}" [style]="{ width: '70vw' }">
+          <div class="flex flex-wrap gap-3 mt-3">
+            <div
+              *ngFor="let option of question.options"
+              class="flex align-items-center"
+            >
+              <p-radioButton
+                name="question_{{ question.questionId }}"
+                [value]="option.value"
+                [(ngModel)]="selectedOptions[question.questionId]"
+                [inputId]="
+                  'question_' + question.questionId + '_option' + option.value
+                "
+              ></p-radioButton>
+              <label
+                [for]="
+                  'question_' + question.questionId + '_option' + option.value
+                "
+                class="ml-2"
+                >{{ option.label }}</label
+              >
+            </div>
+          </div>
+        </p-card>
+      </div>
+    </div>
+    <div>
+      <p-card id="webcam" header="Hi {{ userId }}, " [style]="{width: '28vw'}">
+        <div class="m-0">
+          <div class="flex justify-content-center mt-2">
+            <webcam
+              [height]="300"
+              [width]="400"
+              [trigger]="triggerObservable"
+              (imageCapture)="onImageCapture($event)"
+            ></webcam>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+  

@@ -1,1 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
+@import "primeicons/primeicons.css";
+.p-card-body {
+    background-color: rgb(127, 225, 255);
+    border-radius: 10px;
+    border: 1px;
+    margin: 10px;
+}
+
+#webcam {
+    .p-card-body {
+        background-color: burlywood;
+    }  
+}
+#login .p-card-body{
+    background-color: white;
+}
