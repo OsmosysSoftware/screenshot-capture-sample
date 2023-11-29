@@ -16,8 +16,7 @@ export class ApiService {
     return this.http.post(url, body);
   }
 
-  capture(candidateId: string, candidateImage: string, laptopScreenshot: string): Observable<any> {
-    const timestamp = new Date().toISOString();
+  capture(candidateId: string, candidateImage: string, laptopScreenshot: string, timestamp: string): Observable<any> {
     const url = `${this.baseUrl}/capture`;
     const body = { candidateId, timestamp, candidateImage, laptopScreenshot };
     return this.http.post(url, body);

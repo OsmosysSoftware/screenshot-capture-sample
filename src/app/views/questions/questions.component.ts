@@ -6,6 +6,7 @@ import { interval, Subscription } from 'rxjs';
 import { NgxCaptureService } from 'ngx-capture';
 
 const CAPTURE_FREQUENCY_IN_MILLISECONDS = 10000;
+const RANDOM_INTERVAL = true;
 @Component({
   selector: 'app-questions',
   templateUrl: './questions.component.html',
@@ -22,6 +23,7 @@ export class QuestionsComponent implements OnDestroy, OnInit {
   ngOnDestroy(): void {
     this.stopCapture();
   }
+  timestamp = new Date().toISOString();
   questionData = [
     {
       questionId: 1,
@@ -224,7 +226,8 @@ export class QuestionsComponent implements OnDestroy, OnInit {
       .capture(
         this.userId,
         this.capturedImageData.imageAsBase64,
-        this.capturedScreenshot
+        this.capturedScreenshot,
+        this.timestamp
       )
       .subscribe(
         (response) => {
@@ -240,10 +243,11 @@ export class QuestionsComponent implements OnDestroy, OnInit {
     // Stop the previous capture if it's still running
     this.stopCapture();
 
+    this.timestamp = new Date().toISOString();
+    const intervalValue = this.getInterval();
+    console.log(intervalValue);
     // Start capturing at the specified interval
-    this.captureSubscription = interval(
-      CAPTURE_FREQUENCY_IN_MILLISECONDS
-    ).subscribe(() => {
+    this.captureSubscription = interval(intervalValue).subscribe(() => {
       this.triggerSnapshot();
     });
   }
@@ -253,5 +257,12 @@ export class QuestionsComponent implements OnDestroy, OnInit {
     if (this.captureSubscription) {
       this.captureSubscription.unsubscribe();
     }
+  }
+
+  getInterval() {
+    if(!RANDOM_INTERVAL) return CAPTURE_FREQUENCY_IN_MILLISECONDS;
+
+    const randomInterval = Math.floor(Math.random() * 60) + 1;
+    return randomInterval * 1000;
   }
 }

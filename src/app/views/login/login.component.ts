@@ -23,7 +23,6 @@ export class LoginComponent {
 
   // Callback function to receive the captured image data from the webcam component
   onImageCapture(webcamImage: WebcamImage): void {
-    console.info('received webcam image', webcamImage);
     this.capturedImageData = webcamImage;
     this.registerUser();
   }
