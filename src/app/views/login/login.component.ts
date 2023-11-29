@@ -41,7 +41,7 @@ export class LoginComponent {
       .authorize(this.userId, this.capturedImageData.imageAsBase64)
       .subscribe(
         (response) => {
-          console.log('Authorization successful:', response);
+          console.log('Authorization successful:');
           localStorage.setItem('user', this.userId);
           this.router.navigate(['questions']);
         },

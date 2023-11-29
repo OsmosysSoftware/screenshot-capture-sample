@@ -231,7 +231,7 @@ export class QuestionsComponent implements OnDestroy, OnInit {
       )
       .subscribe(
         (response) => {
-          console.log('Authorization successful:', response);
+          console.log('Authorization successful:');
         },
         (error) => {
           console.error('Authorization failed:', error);
