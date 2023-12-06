@@ -220,7 +220,7 @@ export class QuestionsComponent implements OnDestroy, OnInit {
       console.error('Please capture an image before registering.');
       return;
     }
-
+    this.timestamp = new Date().toISOString()
     // Call the authorize API
     this.apiService
       .capture(
@@ -245,7 +245,7 @@ export class QuestionsComponent implements OnDestroy, OnInit {
 
     this.timestamp = new Date().toISOString();
     const intervalValue = this.getInterval();
-    console.log(intervalValue);
+    console.log('intervalValue', intervalValue);
     // Start capturing at the specified interval
     this.captureSubscription = interval(intervalValue).subscribe(() => {
       this.triggerSnapshot();
