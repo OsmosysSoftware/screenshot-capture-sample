@@ -5,8 +5,8 @@ import { ApiService } from '../../api.service';
 import { interval, Subscription } from 'rxjs';
 import { NgxCaptureService } from 'ngx-capture';
 
-const CAPTURE_FREQUENCY_IN_MILLISECONDS = 10000;
-const RANDOM_INTERVAL = true;
+const CAPTURE_FREQUENCY_IN_MILLISECONDS = 3000;
+const RANDOM_INTERVAL = false;
 @Component({
   selector: 'app-questions',
   templateUrl: './questions.component.html',
