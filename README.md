@@ -30,7 +30,8 @@ Update values
 ```ts
 const CAPTURE_FREQUENCY_IN_MILLISECONDS = 10000;
 const RANDOM_INTERVAL = true;
-``` in 
+```
+in 
 `src/app/views/questions/questions.component.ts` 
 # Server Setup
 
