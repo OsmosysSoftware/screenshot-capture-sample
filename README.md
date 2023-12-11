@@ -25,7 +25,13 @@ Run `ng e2e` to execute end-to-end tests on a platform of your choice. Note that
 ## Further Help
 
 For more information on using the Angular CLI, refer to the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
-
+## Screen capture configs
+Update values 
+```ts
+const CAPTURE_FREQUENCY_IN_MILLISECONDS = 10000;
+const RANDOM_INTERVAL = true;
+``` in 
+`src/app/views/questions/questions.component.ts` 
 # Server Setup
 
 Navigate to the server folder:
