@@ -39,6 +39,7 @@ Install Node.js modules:
 ```sh
 npm i
 ```
+Make sure to have `images` folder to save images
 
 Run the server:
 
