@@ -208,8 +208,7 @@ export class QuestionsComponent implements OnDestroy, OnInit {
     } catch (error) {
       console.error('Screenshot capture failed:', error);
       this.pauseCapture();
-      await this.screenCaptureService.reinitializeScreenCapture();
-      this.resumeCapture();
+      await this.reinitializeScreenCapture();
     }
   }
 
@@ -246,10 +245,32 @@ export class QuestionsComponent implements OnDestroy, OnInit {
   async initializeScreenCapture(): Promise<void> {
     try {
       await this.screenCaptureService.getScreenStream();
+      const displaySurface = this.screenCaptureService.getDisplaySurface();
+      if (displaySurface !== 'monitor') {
+        throw new Error('User did not share the entire screen. Reinitializing...');
+      }
+      console.log('User is sharing:', displaySurface);
       this.resumeCapture();
     } catch (error) {
-      console.error('Screen capture permission not granted or failed:', error);
+      console.error(error);
+      alert('Please select the entire screen to proceed.');
       setTimeout(() => this.initializeScreenCapture(), 5000); // Retry after 5 seconds
+    }
+  }
+
+  async reinitializeScreenCapture(): Promise<void> {
+    try {
+      await this.screenCaptureService.reinitializeScreenCapture();
+      const displaySurface = this.screenCaptureService.getDisplaySurface();
+      if (displaySurface !== 'monitor') {
+        throw new Error('User did not share the entire screen. Reinitializing...');
+      }
+      console.log('User is sharing:', displaySurface);
+      this.resumeCapture();
+    } catch (error) {
+      console.error(error);
+      alert('Please select the entire screen to proceed.');
+      this.reinitializeScreenCapture();
     }
   }
 
@@ -266,8 +287,7 @@ export class QuestionsComponent implements OnDestroy, OnInit {
       } catch (error) {
         console.error('Error during screenshot capture:', error);
         this.pauseCapture();
-        await this.screenCaptureService.reinitializeScreenCapture();
-        this.resumeCapture();
+        await this.reinitializeScreenCapture();
       }
     });
   }

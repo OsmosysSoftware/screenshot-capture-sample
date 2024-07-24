@@ -28,6 +28,7 @@ export class LoginComponent {
       this.trigger.next();
     } catch (error) {
       console.error('Screen capture request failed:', error);
+      alert('Please select the entire screen to proceed.');
     }
   }
 

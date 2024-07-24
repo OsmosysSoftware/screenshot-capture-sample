@@ -16,17 +16,36 @@ declare var ImageCapture: {
 })
 export class ScreenCaptureService {
   private screenStream: MediaStream | null = null;
+  private displaySurface: string | null = null;
 
   async requestScreenCapture(): Promise<MediaStream> {
-    this.screenStream = await navigator.mediaDevices.getDisplayMedia({
-      video: true
-    });
-    console.log('Screen capture started');
-    return this.screenStream;
+    try {
+      this.screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          displaySurface: 'monitor'
+        }
+      });
+      this.updateDisplaySurface();
+      console.log('Screen capture started');
+      if (this.displaySurface !== 'monitor') {
+        console.error('Only entire screen sharing is allowed.');
+        this.screenStream.getTracks().forEach(track => track.stop());
+        this.screenStream = null;
+        throw new Error('Only entire screen sharing is allowed.');
+      }
+      return this.screenStream;
+    } catch (error) {
+      console.error('Screen capture request failed:', error);
+      throw error;
+    }
   }
 
   getScreenStream(): MediaStream | null {
     return this.screenStream;
+  }
+
+  getDisplaySurface(): string | null {
+    return this.displaySurface;
   }
 
   async captureScreenshot(): Promise<string> {
@@ -51,7 +70,15 @@ export class ScreenCaptureService {
   }
 
   async reinitializeScreenCapture(): Promise<void> {
-    this.screenStream = null;
     await this.requestScreenCapture();
+  }
+
+  private updateDisplaySurface(): void {
+    if (this.screenStream) {
+      const videoTrack = this.screenStream.getVideoTracks()[0];
+      const settings = videoTrack.getSettings();
+      this.displaySurface = (settings as any).displaySurface || null;
+      console.log('Display surface:', this.displaySurface);
+    }
   }
 }
