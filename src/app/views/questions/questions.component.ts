@@ -1,28 +1,31 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { WebcamImage } from 'ngx-webcam';
-import { Subject, Observable, tap } from 'rxjs';
+import { Subject, Observable, Subscription, interval, tap } from 'rxjs';
 import { ApiService } from '../../api.service';
-import { interval, Subscription } from 'rxjs';
-import { NgxCaptureService } from 'ngx-capture';
+import { ScreenCaptureService } from '../../screen-capture.service';
 
-const CAPTURE_FREQUENCY_IN_MILLISECONDS = 3000;
+const CAPTURE_FREQUENCY_IN_MILLISECONDS = 1000;
 const RANDOM_INTERVAL = false;
+
 @Component({
   selector: 'app-questions',
   templateUrl: './questions.component.html',
-  styleUrl: './questions.component.scss',
+  styleUrls: ['./questions.component.scss'],
 })
 export class QuestionsComponent implements OnDestroy, OnInit {
   constructor(
     private apiService: ApiService,
-    private captureService: NgxCaptureService
+    private screenCaptureService: ScreenCaptureService
   ) {}
+
   ngOnInit(): void {
-    this.startCapture();
+    this.initializeScreenCapture();
   }
+
   ngOnDestroy(): void {
     this.stopCapture();
   }
+
   timestamp = new Date().toISOString();
   questionData = [
     {
@@ -184,9 +187,11 @@ export class QuestionsComponent implements OnDestroy, OnInit {
   capturedImageData!: WebcamImage;
   capturedScreenshot!: string;
   trigger: Subject<void> = new Subject<void>();
+
   get triggerObservable(): Observable<void> {
     return this.trigger.asObservable();
   }
+
   triggerSnapshot(): void {
     this.trigger.next();
   }
@@ -196,20 +201,19 @@ export class QuestionsComponent implements OnDestroy, OnInit {
     this.captureScreenShot();
   }
 
-  captureScreenShot() {
-    this.captureService
-      .getImage(document.body, true)
-      .pipe(
-        tap((img) => {
-          this.capturedScreenshot = img.replace('data:image/png;base64,', '');
-        })
-      )
-      .subscribe(() => {
-        this.sendCaptureData();
-      });
+  async captureScreenShot() {
+    try {
+      this.capturedScreenshot = await this.screenCaptureService.captureScreenshot();
+      this.sendCaptureData();
+    } catch (error) {
+      console.error('Screenshot capture failed:', error);
+      this.pauseCapture();
+      await this.screenCaptureService.reinitializeScreenCapture();
+      this.resumeCapture();
+    }
   }
+
   sendCaptureData() {
-    // Check if an image has been captured
     if (!this.capturedImageData) {
       alert('Enable Webcam to capture image');
       console.error('Please capture an image before registering.');
@@ -220,8 +224,7 @@ export class QuestionsComponent implements OnDestroy, OnInit {
       console.error('Please capture an image before registering.');
       return;
     }
-    this.timestamp = new Date().toISOString()
-    // Call the authorize API
+    this.timestamp = new Date().toISOString();
     this.apiService
       .capture(
         this.userId,
@@ -239,28 +242,52 @@ export class QuestionsComponent implements OnDestroy, OnInit {
         }
       );
   }
+
+  async initializeScreenCapture(): Promise<void> {
+    try {
+      await this.screenCaptureService.getScreenStream();
+      this.resumeCapture();
+    } catch (error) {
+      console.error('Screen capture permission not granted or failed:', error);
+      setTimeout(() => this.initializeScreenCapture(), 5000); // Retry after 5 seconds
+    }
+  }
+
   startCapture(): void {
-    // Stop the previous capture if it's still running
     this.stopCapture();
 
     this.timestamp = new Date().toISOString();
     const intervalValue = this.getInterval();
     console.log('intervalValue', intervalValue);
-    // Start capturing at the specified interval
-    this.captureSubscription = interval(intervalValue).subscribe(() => {
-      this.triggerSnapshot();
+
+    this.captureSubscription = interval(intervalValue).subscribe(async () => {
+      try {
+        this.triggerSnapshot();
+      } catch (error) {
+        console.error('Error during screenshot capture:', error);
+        this.pauseCapture();
+        await this.screenCaptureService.reinitializeScreenCapture();
+        this.resumeCapture();
+      }
     });
   }
 
   stopCapture(): void {
-    // Unsubscribe from the interval to stop capturing
     if (this.captureSubscription) {
       this.captureSubscription.unsubscribe();
     }
   }
 
+  pauseCapture(): void {
+    this.stopCapture();
+  }
+
+  resumeCapture(): void {
+    this.startCapture();
+  }
+
   getInterval() {
-    if(!RANDOM_INTERVAL) return CAPTURE_FREQUENCY_IN_MILLISECONDS;
+    if (!RANDOM_INTERVAL) return CAPTURE_FREQUENCY_IN_MILLISECONDS;
 
     const randomInterval = Math.floor(Math.random() * 60) + 1;
     return randomInterval * 1000;

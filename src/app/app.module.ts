@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { QuestionsComponent } from './views/questions/questions.component';
@@ -12,16 +12,20 @@ import { InputTextModule } from 'primeng/inputtext';
 import { HttpClientModule } from '@angular/common/http';
 import {WebcamModule} from 'ngx-webcam';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { NgxCaptureModule } from 'ngx-capture';
-
+import { ImageCompareComponent } from './views/image-compare/image-compare.component';
+import { FileUploadModule } from 'primeng/fileupload';
+import { TableModule } from 'primeng/table';
+import { ImageModule } from 'primeng/image';
 @NgModule({
   declarations: [
     AppComponent,
     QuestionsComponent,
-    LoginComponent
+    LoginComponent,
+    ImageCompareComponent
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     FormsModule,
     ButtonModule,
@@ -29,8 +33,10 @@ import { NgxCaptureModule } from 'ngx-capture';
     InputTextModule,
     HttpClientModule,
     RadioButtonModule,
-    NgxCaptureModule,
-    WebcamModule
+    WebcamModule,
+    FileUploadModule,
+    TableModule,
+    ImageModule
   ],
   providers: [],
   bootstrap: [AppComponent]

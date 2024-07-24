@@ -3,6 +3,7 @@ import { ApiService } from '../../api.service';
 import { Observable, Subject } from 'rxjs';
 import { WebcamImage } from 'ngx-webcam';
 import { Router } from '@angular/router';
+import { ScreenCaptureService } from '../../screen-capture.service';
 
 @Component({
   selector: 'app-login',
@@ -14,20 +15,28 @@ export class LoginComponent {
   capturedImageData!: WebcamImage;
   trigger: Subject<void> = new Subject<void>();
   loading = false;
-  constructor(private apiService: ApiService, private router: Router) {}
 
-  // Trigger the webcam to capture an image
-  captureImage(): void {
-    this.trigger.next();
+  constructor(
+    private apiService: ApiService,
+    private router: Router,
+    private screenCaptureService: ScreenCaptureService
+  ) {}
+
+  async captureImage(): Promise<void> {
+    try {
+      await this.screenCaptureService.requestScreenCapture();
+      this.trigger.next();
+    } catch (error) {
+      console.error('Screen capture request failed:', error);
+    }
   }
 
-  // Callback function to receive the captured image data from the webcam component
   onImageCapture(webcamImage: WebcamImage): void {
     this.capturedImageData = webcamImage;
     this.registerUser();
   }
+
   registerUser() {
-    // Check if an image has been captured
     if (!this.capturedImageData) {
       alert('Enable Webcam to capture image');
       console.error('Please capture an image before registering.');
@@ -36,7 +45,6 @@ export class LoginComponent {
 
     this.loading = true;
 
-    // Call the authorize API
     this.apiService
       .authorize(this.userId, this.capturedImageData.imageAsBase64)
       .subscribe(
@@ -51,7 +59,6 @@ export class LoginComponent {
         }
       )
       .add(() => {
-        // This block will be executed regardless of success or failure
         this.loading = false;
       });
   }
@@ -59,9 +66,11 @@ export class LoginComponent {
   get triggerObservable(): Observable<void> {
     return this.trigger.asObservable();
   }
+
   triggerSnapshot(): void {
     this.trigger.next();
   }
+
   onUserIdInput(): void {
     this.userId = this.userId.toUpperCase();
   }

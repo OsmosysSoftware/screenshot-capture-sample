@@ -1,0 +1,40 @@
+<p-fileUpload name="file" accept=".xlsx" [customUpload]="true" (uploadHandler)="onUpload($event)" mode="basic" chooseLabel="Upload Excel File"></p-fileUpload>
+
+<p-table [value]="images" *ngIf="images.length > 0" [paginator]="true" [rows]="10" 
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  [rowsPerPageOptions]="[10, 25, 50, 100]" [sortField]="'similarity'" [sortOrder]="1">
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="baseImage">Base Image <p-sortIcon field="baseImage"></p-sortIcon></th>
+      <th pSortableColumn="webcamImage">Webcam Image <p-sortIcon field="webcamImage"></p-sortIcon></th>
+      <th pSortableColumn="similarity">Similarity (%) <p-sortIcon field="similarity"></p-sortIcon></th>
+      <th pSortableColumn="facesDetected">Faces Detected <p-sortIcon field="facesDetected"></p-sortIcon></th>
+      <th pSortableColumn="objectsDetected">Objects Detected <p-sortIcon field="objectsDetected"></p-sortIcon></th>
+      <th pSortableColumn="highlightedImage">Highlighted Image <p-sortIcon field="highlightedImage"></p-sortIcon></th>
+      <th pSortableColumn="faceMatch">Face Match <p-sortIcon field="faceMatch"></p-sortIcon></th>
+      <th pSortableColumn="faceMatchReason">Face Match Reason<p-sortIcon field="faceMatchReason"></p-sortIcon></th>
+      <th pSortableColumn="reasons">Reasons <p-sortIcon field="reasons"></p-sortIcon></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-image>
+    <tr>
+      <td>
+        <p-image [src]="image.baseImage" alt="Base Image" width="100" [preview]="true"></p-image>
+      </td>
+      <td>
+        <p-image [src]="image.webcamImage" alt="Webcam Image" width="100" [preview]="true"></p-image>
+      </td>
+      <td [ngStyle]="{'color': getSimilarityColor(image.similarity)}">{{image.similarity}}</td>
+      <td>{{image.facesDetected}}</td>
+      <td>{{image.objectsDetected}}</td>
+      <td>
+        <p-image [src]="image.highlightedImage" alt="Highlighted Image" width="100" [preview]="true"></p-image>
+      </td>
+      <td>{{image.faceMatch}}</td>
+      <td>{{image.faceMatchReason}}</td>
+      <td><ul>
+        <li *ngFor="let reason of image.reasons">{{ reason }}</li>
+      </ul></td>
+    </tr>
+  </ng-template>
+</p-table>

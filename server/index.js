@@ -17,6 +17,9 @@ const ensureFolderExists = (folderPath) => {
   }
 };
 
+// Serve static files from the images directory
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
 // Endpoint for authorizing a candidate and saving base image
 app.post('/authorize', (req, res) => {
   try {
@@ -32,7 +35,7 @@ app.post('/authorize', (req, res) => {
 
     fs.writeFileSync(baseImagePath, baseImageBuffer);
 
-    res.status(200).json({ message: 'Authorization successful', imagePath: baseImagePath });
+    res.status(200).json({ message: 'Authorization successful', imagePath: `/images/${candidateId}/base_image/${candidateId}_base_image.jpg` });
   } catch (error) {
     console.error('Authorization error:', error);
     res.status(500).json({ error: 'Internal server error during authorization' });
@@ -44,22 +47,26 @@ app.post('/capture', (req, res) => {
   try {
     const { candidateId, timestamp, candidateImage, laptopScreenshot } = req.body;
     const candidateFolder = path.join(__dirname, `images/${candidateId}`);
-    const screenshotFolder = path.join(candidateFolder, `screenshots`);
-    const webcamcaptures = path.join(candidateFolder, `webcamcaptures`);
+    const screenshotFolder = path.join(candidateFolder, 'screenshots');
+    const webcamcapturesFolder = path.join(candidateFolder, 'webcamcaptures');
 
     // Ensure the candidate folder exists
     ensureFolderExists(candidateFolder);
     ensureFolderExists(screenshotFolder);
-    ensureFolderExists(webcamcaptures);
+    ensureFolderExists(webcamcapturesFolder);
 
     // Save candidate image and laptop screenshot
-    const candidateImagePath = path.join(webcamcaptures, `${timestamp}_webcam_${candidateId}.jpg`);
+    const candidateImagePath = path.join(webcamcapturesFolder, `${timestamp}_webcam_${candidateId}.jpg`);
     const screenshotImagePath = path.join(screenshotFolder, `${timestamp}_screenshot_${candidateId}.png`);
 
     fs.writeFileSync(candidateImagePath, candidateImage, 'base64');
     fs.writeFileSync(screenshotImagePath, laptopScreenshot, 'base64');
 
-    res.status(200).json({ message: 'Images captured successfully', candidateImagePath, screenshotImagePath });
+    res.status(200).json({
+      message: 'Images captured successfully',
+      candidateImagePath: `/images/${candidateId}/webcamcaptures/${timestamp}_webcam_${candidateId}.jpg`,
+      screenshotImagePath: `/images/${candidateId}/screenshots/${timestamp}_screenshot_${candidateId}.png`
+    });
   } catch (error) {
     console.error('Capture error:', error);
     res.status(500).json({ error: 'Internal server error during image capture' });
